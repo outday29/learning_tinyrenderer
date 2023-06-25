@@ -9,3 +9,4 @@ logs
 TODO.md
 debug.log
 .venv
+*.code-workspace
