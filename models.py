@@ -13,23 +13,33 @@ class Color(NamedTuple):
     b: int
 
 
-class Point(NamedTuple):
+class Point2D(NamedTuple):
     x: int
     y: int
-    
+
     def as_ndarray(self) -> npt.NDArray:
         return np.array([self.x, self.y])
 
+
+class Point3D(NamedTuple):
+    x: int
+    y: int
+    z: int
+
+    def as_ndarray(self) -> npt.NDArray:
+        return np.array([self.x, self.y, self.z])
+
+
 class LineParametric(BaseModel):
     # Parametric representation of a 2D line
-    start_point: Any # Pydantic does not support npt.NDArray
+    start_point: Any  # Pydantic does not support npt.NDArray
     direction_vector: Any
-    
+
     class Config:
         arbitrary_types_allowed: True
-    
+
     @classmethod
-    def from_points(cls, point_1: Point, point_2: Point):
+    def from_points(cls, point_1: Point2D, point_2: Point2D):
         point_1 = point_1.as_ndarray()
         point_2 = point_2.as_ndarray()
         logger.info(f"{point_1=}")
@@ -38,24 +48,26 @@ class LineParametric(BaseModel):
         logger.info(f"{start_point=}")
         return cls(start_point=start_point, direction_vector=direction_vector)
 
+
 class Line(BaseModel):
     slope: float
     y_intercept: float
-    
+
     @classmethod
-    def from_points(cls, point_1: Point, point_2: Point) -> Line:
+    def from_points(cls, point_1: Point2D, point_2: Point2D) -> Line:
         if point_1.x == point_2.x:
             raise ValueError(f"Vertical line not supported")
-        
+
         slope = (point_2.y - point_1.y) / (point_2.x - point_1.x)
         y_intercept = point_1.y - slope * point_1.x
 
         return cls(slope=slope, y_intercept=y_intercept)
-    
-    def get_y_value(self, x = float) -> float:
+
+    def get_y_value(self, x=float) -> float:
         return self.y_intercept + (x * self.slope)
-    
-    def get_x_value(self, y = float) -> float:
+
+    def get_x_value(self, y=float) -> float:
         return (y - self.y_intercept) / self.slope
-    
-Triangle: TypeAlias = tuple[Point, Point, Point]
+
+
+Triangle: TypeAlias = tuple[Point2D, Point2D, Point2D]
